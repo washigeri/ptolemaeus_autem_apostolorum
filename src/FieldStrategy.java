@@ -4,12 +4,10 @@
 import client.InfluenceCell;
 import client.InfluenceField;
 import javafx.geometry.Pos;
+import javafx.scene.control.Cell;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class FieldStrategy  {
     public InfluenceField field;
@@ -102,7 +100,7 @@ public class FieldStrategy  {
         return res;
     }
 
-    public PossibleAttack getPossibleAttack() {
+    public List<PossibleAttack> getAllPossibleAttack() {
         List<PossibleAttack> possibleAttacks = new ArrayList<>();
         List<InfluenceCell> attackers = getMyAttackerCells();
         for(InfluenceCell cell : attackers) {
@@ -114,6 +112,11 @@ public class FieldStrategy  {
             }
             possibleAttacks.addAll(localAttacks);
         }
+        return possibleAttacks;
+    }
+
+    public PossibleAttack getPossibleAttack() {
+        List<PossibleAttack> possibleAttacks = getAllPossibleAttack();
         if(possibleAttacks.size() > 0) {
             sort(possibleAttacks);
             System.out.println("Sort");
@@ -127,6 +130,47 @@ public class FieldStrategy  {
             System.out.println("No attack possible this round");
             return null;
         }
+    }
+
+    public HashMap<InfluenceCell, Integer> getUnitsIncrease(int leftUnits) {
+        HashMap<InfluenceCell, Integer> toAdd = new HashMap<>();
+        int oo = leftUnits;
+        while(leftUnits > 0) {
+            int origLeftUnits = leftUnits;
+            for(InfluenceCell cell : myCells) {
+                List<InfluenceCell> neighbors = getNeighborhood(cell);
+                List<InfluenceCell> enemies = filterEnemy(neighbors);
+
+                int unitsToAdd = (int) Math.ceil(((double) enemies.size()) / 2.0);
+
+                if(toAdd.containsKey(cell)) toAdd.put(cell, toAdd.get(cell) + unitsToAdd);
+                else toAdd.put(cell, unitsToAdd);
+
+                leftUnits -= unitsToAdd;
+            }
+            if(origLeftUnits == leftUnits) break;
+        }
+        System.out.println("PA UA :" + (oo - leftUnits));
+
+        //1 handling
+        for(InfluenceCell cell : myCells) {
+            if(leftUnits > 0 && cell.getUnitsCount() == 1) {
+                if(toAdd.containsKey(cell)) toAdd.put(cell, toAdd.get(cell) + 1);
+                else toAdd.put(cell, 1);
+                leftUnits--;
+            }
+        }
+
+
+        //Left random
+        Random rand = new Random();
+        for(int i=0; i<leftUnits; i++) {
+            int randomCellIndex = rand.nextInt(myCells.size());
+            InfluenceCell cell = myCells.get(randomCellIndex);
+            if(toAdd.containsKey(cell)) toAdd.put(cell, toAdd.get(cell) + 1);
+            else toAdd.put(cell, 1);
+        }
+        return toAdd;
     }
 
 

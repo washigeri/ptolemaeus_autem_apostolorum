@@ -3,6 +3,8 @@ import client.InfluenceClient;
 import client.InfluenceField;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -20,11 +22,14 @@ public class Main
 
         // On se connecte au serveur : le premier paramètre est son adresse IP, le deuxième est le nom de votre équipe
         // Cet appel affiche votre numéro sur le plateau de jeu
-        client.connect("127.0.0.1", "JavaClient");
+        client.connect("127.0.0.1", "Ptolemaeus autem apostolorum");
+
+        int turns = 0;
 
         // Tant que la partie est en cours
         while (client.getStatus() == InfluenceClient.Status.ONGOING)
         {
+            turns ++;
             // On attend notre tour, ce qui permet de récupérer le nouveau plateau de jeu
             InfluenceField field = client.nextRound();
 
@@ -56,13 +61,11 @@ public class Main
 
             // On récupère les cellules qui nous appartiennent
             myCells = client.getMyCells();
-            // Tant que l'on peut placer des unités
-            for (int i = 0; i < unitsToAdd; i++)
-            {
-                // On choisit une cellule aléatoirement parmi celles qui nous appartiennent
-                InfluenceCell c = myCells.get(r.nextInt(myCells.size()));
-                // On ajoute une unité à la cellule choisie
-                client.addUnits(c, 1);
+
+            FieldStrategy strategy = new FieldStrategy(field, client.getNumber(), client.remainingUnits(), myCells);
+            HashMap<InfluenceCell, Integer> toAdd = strategy.getUnitsIncrease(unitsToAdd);
+            for(Map.Entry<InfluenceCell, Integer> entry : toAdd.entrySet()) {
+                client.addUnits(entry.getKey(), entry.getValue());
             }
 
             // On indique au serveur que l'on a fini notre tour
@@ -88,5 +91,7 @@ public class Main
                 System.out.println("NOT REACHABLE");
                 break;
         }
+
+        System.out.println("Turns : " + turns);
     }
 }
