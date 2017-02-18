@@ -27,20 +27,37 @@ public class Main {
                 break;
             }
             ArrayList<InfluenceCell> myCells;
-            client.printLog("Attacking");
+            client.printLog("Rash B.");
 
-            boolean canAttack = true;
-            for(int i = 0; i < 20 && canAttack ; i++){
-
+            for(int i = 0; i < 20; i++){
+              myCells = client.getMyCells();
+              Strategy2 strat = new Strategy2(myCells, field, client.getNumber());
+              Coup best = strat.meilleur_coup();
+              if( best == null){
+                  break;
+              }
+              else {
+                  InfluenceCell victime = best.victime;
+                  InfluenceCell attaquant = best.attaquant;
+                  if (victime != null && victime.getOwner() != client.getNumber())
+                  {
+                      // On attaque la cible et on récupère le plateau de jeu après l'attaque
+                      field = client.attack(attaquant.getX(), attaquant.getY(), victime.getX(), victime.getY());
+                  }
+              }
             }
             int unitsToAdd = client.endAttacks();
 
             myCells = client.getMyCells();
-            Random r = new Random();
+            Strategy2 strat = new Strategy2(myCells, field, client.getNumber());
             for( int i = 0; i < unitsToAdd; i++){
-
-                InfluenceCell c = myCells.get(r.nextInt(myCells.size()));
+                InfluenceCell c = strat.pointCellule();
                 client.addUnits(c, 1);
+                InfluenceCell newCell = new InfluenceCell(c.getX(), c.getY(), c.getOwner(), c.getUnitsCount() + 1);
+                int index = Strategy2.indexOf(c,myCells);
+                if( index != - 1){
+                    myCells.set(index, newCell);
+                }
             }
 
             client.endAddingUnits();
