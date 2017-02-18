@@ -22,7 +22,7 @@ public class Main
 
         // On se connecte au serveur : le premier paramètre est son adresse IP, le deuxième est le nom de votre équipe
         // Cet appel affiche votre numéro sur le plateau de jeu
-        client.connect("10.3.0.45", "Ptolemaeus autem apostolorum");
+        client.connect("localhost", "Ptolemaeus autem apostolorum");
 
         int turns = 0;
 

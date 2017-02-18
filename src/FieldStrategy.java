@@ -66,19 +66,63 @@ public class FieldStrategy  {
         });
     }
 
-    public List<InfluenceCell> getNeighborhood(InfluenceCell cell) {
-        ArrayList<InfluenceCell> res = new ArrayList<>();
-        for(int dx=-1; dx <=1; dx++) {
-            for(int dy=-1; dy<=1; dy++) {
-                if(dx != 0 || dy != 0) {
-                    int x = cell.getX() + dx;
-                    int y = cell.getY() + dy;
-                    if(isValid(x, y)) {
-                        res.add(field.getCell(x, y));
-                    }
+    class Point {
+        public int x;
+        public int y;
+        public Point(int x, int y) {this.x=x; this.y=y;}
+    }
+
+    public InfluenceCell getMiddleEnemy() {
+        int x = 0;
+        int y = 0;
+
+        int divide = 0;
+
+        for(int i=0; i<field.getWidth(); i++) {
+            for(int j=0; j<field.getHeight(); j++) {
+                if(field.getCell(i, j).getOwner() > 0 && field.getCell(i,j).getOwner() != we) {
+                    divide += field.getCell(i,j).getUnitsCount();
+                    x += i;
+                    y += j;
                 }
             }
         }
+
+        return field.getCell(x/divide, y/divide);
+    }
+
+    public List<InfluenceCell> getNeighborhood(InfluenceCell cell) {
+        ArrayList<InfluenceCell> res = new ArrayList<>();
+
+        ArrayList<Point> points = new ArrayList<>();
+        points.add(new Point(-1,-1));
+        points.add(new Point(1,1));
+
+        points.add(new Point(1,0));
+        points.add(new Point(-1,0));
+
+        points.add(new Point(0,-1));
+        points.add(new Point(0,1));
+
+        points.add(new Point(1,-1));
+        points.add(new Point(-1,1));
+
+
+
+
+
+        for(Point p : points) {
+            if (p.x != 0 || p.y != 0) {
+                int x = cell.getX() + p.x;
+                int y = cell.getY() + p.y;
+                if (isValid(x, y)) {
+                    res.add(field.getCell(x, y));
+                }
+            }
+        }
+
+
+
         return res;
     }
 
@@ -92,12 +136,26 @@ public class FieldStrategy  {
         return enemies;
     }
 
+    public List<InfluenceCell> filterRealEnemy(List<InfluenceCell> cells) {
+        List<InfluenceCell> enemies = new ArrayList<>();
+        for(InfluenceCell cell : cells) {
+            if(cell.getOwner() != we && cell.getOwner() > 0) {
+                enemies.add(cell);
+            }
+        }
+        return enemies;
+    }
+
     public List<InfluenceCell> getMyAttackerCells() {
         List<InfluenceCell> res = new ArrayList<>();
         for(InfluenceCell cell : myCells) {
             if(cell.getUnitsCount() >= 2) res.add(cell);
         }
         return res;
+    }
+
+    public double distance(InfluenceCell a, InfluenceCell b) {
+        return (double) Math.sqrt(Math.pow( a.getX() - b.getX(), 2) + Math.pow(a.getY() - b.getY(), 2));
     }
 
     public List<PossibleAttack> getAllPossibleAttack() {
@@ -120,7 +178,7 @@ public class FieldStrategy  {
         if(possibleAttacks.size() > 0) {
             sort(possibleAttacks);
 
-            if(possibleAttacks.get(0).diff <= -2) {
+            if(possibleAttacks.get(0).diff <= 0) {
 
                 System.out.println("Sort");
                 for (PossibleAttack at : possibleAttacks) {
@@ -142,19 +200,42 @@ public class FieldStrategy  {
     public HashMap<InfluenceCell, Integer> getUnitsIncrease(int leftUnits) {
         HashMap<InfluenceCell, Integer> toAdd = new HashMap<>();
         int oo = leftUnits;
+        InfluenceCell bary = getMiddleEnemy();
         while(leftUnits > 0) {
             int origLeftUnits = leftUnits;
+            myCells.sort(new Comparator<InfluenceCell>() {
+                @Override
+                public int compare(InfluenceCell o1, InfluenceCell o2) {
+                    double distanceA = distance(o1, bary);
+                    double distanceB = distance(o2, bary);
+                    return (int) (distanceA - distanceB);
+                }
+            });
             for(InfluenceCell cell : myCells) {
+                List<InfluenceCell> neighbors = getNeighborhood(cell);
+                List<InfluenceCell> enemies = filterRealEnemy(neighbors);
+
+                int nbRealEnemies = enemies.size();
+
+                if(nbRealEnemies > 0) {
+
+
+                    int unitsToAdd = (int) Math.ceil((double) nbRealEnemies / 2.0);
+                    if(toAdd.containsKey(cell)) toAdd.put(cell, toAdd.get(cell) + unitsToAdd);
+                    else toAdd.put(cell, unitsToAdd);
+                    leftUnits -= unitsToAdd;
+                }
+            }
+            /*for(InfluenceCell cell : myCells) {
                 List<InfluenceCell> neighbors = getNeighborhood(cell);
                 List<InfluenceCell> enemies = filterEnemy(neighbors);
 
-                int unitsToAdd = (int) Math.ceil(((double) enemies.size()) / 2.0);
-
-                if(toAdd.containsKey(cell)) toAdd.put(cell, toAdd.get(cell) + unitsToAdd);
-                else toAdd.put(cell, unitsToAdd);
-
-                leftUnits -= unitsToAdd;
-            }
+                if(enemies.size() > 1) {
+                    if(toAdd.containsKey(cell)) toAdd.put(cell, toAdd.get(cell) + 1);
+                    else toAdd.put(cell, 1);
+                    leftUnits -= 1;
+                }
+            }*/
             if(origLeftUnits == leftUnits) break;
         }
         System.out.println("PA UA :" + (oo - leftUnits));
