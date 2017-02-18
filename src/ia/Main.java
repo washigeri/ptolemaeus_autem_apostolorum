@@ -12,23 +12,6 @@ public class Main {
 
 
 
-
-    private  ArrayList<InfluenceCell> getBorder(ArrayList<InfluenceCell> myCells, InfluenceField plateau){
-        int xmax = 0,ymax = 0;
-        for(int i=0;i<plateau.getHeight();i++)
-        {
-            for(InfluenceCell cell : myCells){
-                if( cell.getY() == i) {
-
-                }
-            }
-        }
-        return (new ArrayList<InfluenceCell>());
-
-
-    }
-
-
     public static void main (String[] args){
         // On récupère l'instance du client (cela le crée en fait)
         InfluenceClient client = InfluenceClient.getInstance();
