@@ -20,7 +20,7 @@ public class Coup {
 
     public static Coup max_coup(ArrayList<Coup> list){
         Coup res = null;
-        if(list != null){
+        if(!list.isEmpty()){
             res = list.get(0);
             for( Coup c : list){
                 if( c.score > res.score ){

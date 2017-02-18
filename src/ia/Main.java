@@ -31,10 +31,19 @@ public class Main {
 
             boolean canAttack = true;
             for(int i = 0; i < 20 && canAttack ; i++){
-                myCells = client.getMyCells();
-
 
             }
+            int unitsToAdd = client.endAttacks();
+
+            myCells = client.getMyCells();
+            Random r = new Random();
+            for( int i = 0; i < unitsToAdd; i++){
+
+                InfluenceCell c = myCells.get(r.nextInt(myCells.size()));
+                client.addUnits(c, 1);
+            }
+
+            client.endAddingUnits();
         }
         // On est sorti de la boucle donc la partie est terminée
         switch (client.getStatus())

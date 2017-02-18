@@ -33,6 +33,12 @@ public class Strategy {
                 }
             }
         }
+        if(!res){
+            System.out.println("neighbor rekt");
+        }
+        else {
+            System.out.println("bite");
+        }
         return res;
     }
 
@@ -46,6 +52,9 @@ public class Strategy {
                 }
             }
         }
+        if( borderCells.isEmpty()){
+            System.out.println("border_cells_empty!!!!");
+        }
         return (borderCells);
 
 
@@ -57,17 +66,25 @@ public class Strategy {
         for(short i = -1 ; i< 2; i++) {
             for (short j = -1; j < 2; j++) {
                 InfluenceCell c = field.getCell(cell.getX() + i, cell.getY() + j);
-                if( c.getOwner() != owner ){
+                if( isValid(c) && (c.getOwner() != owner)){
                     res.add(c);
                 }
             }
+        }
+        if(res.isEmpty()){
+            System.out.println("enemies empty");
         }
         return res;
     }
 
     private boolean isValid(InfluenceCell cell){
-        int x  = cell.getX(), y = cell.getY();
-        return ( (x >= 0) && ( x < field.getWidth()) && (y >= 0 ) && ( y < field.getHeight() ));
+        if( cell != null) {
+            int x = cell.getX(), y = cell.getY();
+            return ((x >= 0) && (x < field.getWidth()) && (y >= 0) && (y < field.getHeight()));
+        }
+        else {
+            return false;
+        }
     }
 
     public InfluenceCell get_result_strategy(){
@@ -82,10 +99,14 @@ public class Strategy {
             }
         }
         Coup best = Coup.max_coup(coupsListe);
-        this.cellToAttack = best.victime;
-        return (best.attaquant);
+        if( best == null) { System.out.println("null");}
+        setCellToAttack(best != null ? best.victime : null);
+        return best.attaquant;
 
 
     }
 
+    private void setCellToAttack(InfluenceCell target){
+        this.cellToAttack = target;
+    }
 }
