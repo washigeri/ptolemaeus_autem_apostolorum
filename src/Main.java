@@ -22,7 +22,7 @@ public class Main
 
         // On se connecte au serveur : le premier paramètre est son adresse IP, le deuxième est le nom de votre équipe
         // Cet appel affiche votre numéro sur le plateau de jeu
-        client.connect("127.0.0.1", "Ptolemaeus autem apostolorum");
+        client.connect("10.3.0.45", "Ptolemaeus autem apostolorum");
 
         int turns = 0;
 
@@ -43,7 +43,7 @@ public class Main
             client.printLog("Attacking");
 
             // On va essayer de lancer 10 attaques
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 20; i++)
             {
                 // On récupère toutes les cellules qui nous appartiennent
                 myCells = client.getMyCells();

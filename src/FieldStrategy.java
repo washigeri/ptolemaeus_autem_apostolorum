@@ -45,7 +45,7 @@ public class FieldStrategy  {
             this.ourCell = ourCell;
             this.enemyCell = enemyCell;
             if(enemyCell == null)
-                diff = 0;
+                diff = ourCell.getUnitsCount();
             else
                 diff = enemyCell.getUnitsCount() - ourCell.getUnitsCount();
         }
@@ -119,13 +119,20 @@ public class FieldStrategy  {
         List<PossibleAttack> possibleAttacks = getAllPossibleAttack();
         if(possibleAttacks.size() > 0) {
             sort(possibleAttacks);
-            System.out.println("Sort");
-            for(PossibleAttack at : possibleAttacks) {
-                System.out.println(at.toString());
+
+            if(possibleAttacks.get(0).diff <= -2) {
+
+                System.out.println("Sort");
+                for (PossibleAttack at : possibleAttacks) {
+                    System.out.println(at.toString());
+                }
+                System.out.println("EndSort");
+                System.out.println(possibleAttacks.get(0).toString());
+                return possibleAttacks.get(0);
+            } else {
+                System.out.println("No good attack possible this round");
+                return null;
             }
-            System.out.println("EndSort");
-            System.out.println(possibleAttacks.get(0).toString());
-            return possibleAttacks.get(0);
         } else {
             System.out.println("No attack possible this round");
             return null;
